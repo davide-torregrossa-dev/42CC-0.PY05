@@ -6,8 +6,11 @@ from abc import ABC, abstractmethod
 
 class DataProcessor(ABC):
     name = "DataProcessor"
-    storage: list[(str, int)] = []
+    ingested = 0
     valid_datatypes = []
+
+    def __init__(self):
+        self.storage: list[(str, int)] = []
 
     @abstractmethod
     def validate(self, data: tp.Any) -> bool:
