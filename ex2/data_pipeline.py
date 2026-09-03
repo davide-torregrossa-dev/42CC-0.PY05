@@ -154,8 +154,52 @@ class LogProcessor(DataProcessor):
         )
 
 
+class ExportPlugin(tp.Protocol):
+    def process_output(self, data: list[tuple[int, str]]) -> None:
+        pass
+
+
+class CsvExportPlugin:
+    def process_output(self, data: list[tuple[int, str]]) -> None:
+        csv_string = "rank,value\n"
+        for rank, val in data:
+            csv_string += f"{rank},{val}\n"
+        print("--- CSV EXPORT ---")
+        print(csv_string)
+
+
+class JsonExportPlugin:
+    def process_output(self, data: list[tuple[int, str]]) -> None:
+        json_lines = ["["]
+        for i, (rank, val) in enumerate(data):
+            comma = "," if i < len(data) - 1 else ""
+            json_lines.append(
+                f'  {{"rank": {rank}, "value": "{val}"}}{comma}'
+            )
+        json_lines.append("]")
+        print("\n--- JSON EXPORT ---")
+        print("\n".join(json_lines))
+        print("-------------------")
+
+
 class DataStream:
     processors: list[DataProcessor] = []
+
+    def output_pipeline(self, nb: int, plugin: ExportPlugin) -> None:
+        collected_data: list[tuple[int, str]] = []
+        for _ in range(nb):
+            for processor in self.processors:
+                try:
+                    item = processor.storage.pop()
+                    collected_data.append(item)
+                    print(
+                        f"Extracted {item[1]} with rank {item[0]} from {processor.name}"
+                    )
+                except IndexError:
+                    print(
+                        f"Error, {processor.name} tried to output from an empty storage."
+                    )
+        plugin.process_output(collected_data)
 
     def register_processor(self, proc: DataProcessor) -> None:
         if isinstance(proc, DataProcessor):
