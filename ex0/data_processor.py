@@ -7,31 +7,31 @@ from abc import ABC, abstractmethod
 class DataProcessor(ABC):
     name = "DataProcessor"
     ingested = 0
-    valid_datatypes = []
+    valid_datatypes: list[object]
 
-    def __init__(self):
-        self.storage: list[(str, int)] = []
+    def __init__(self) -> None:
+        self.storage: list[tuple[str, int]] = []
 
     @abstractmethod
     def validate(self, data: tp.Any) -> bool:
         print("please create a validate method")
+        return False
 
     @abstractmethod
     def ingest(self, data: tp.Any) -> None:
         print("please create an ingest method")
 
-    def output(self) -> tuple[int, str]:
-        try:
-            temp = self.storage.pop()
-            print(
-                f"Extracted {temp[1]} with rank {temp[0]} from {self.name}."
-            )
-        except IndexError:
+    def output(self) -> tuple[str, int] | None:
+        if not self.storage:
             print(
                 f"Error, {self.name} tried to output from an empty storage."
             )
+            return None
+        temp = self.storage.pop()
+        print(f"Extracted {temp[0]} with rank {temp[1]} from {self.name}.")
+        return temp
 
-    def is_valid_datatype(self, datatype: tp.Any):
+    def is_valid_datatype(self, datatype: tp.Any) -> bool:
         return datatype in self.valid_datatypes
 
 
@@ -42,29 +42,33 @@ class NumericProcessor(DataProcessor):
     def validate(self, data: int | float | list[int | float]) -> bool:
         print(f"{self.name} trying to validate '{data}'...")
         is_a_list = isinstance(data, list)
-        if not is_a_list:
-            data = [data]
-        for element in data:
+        items: list[int | float] = (
+            data if isinstance(data, list) else [data]
+        )
+
+        for element in items:
             print(f"validating {element}...", end="")
             if not self.is_valid_datatype(type(element)):
                 print(" error!")
                 print(f"Invalid input data: {element}. Returning False")
                 return False
             print(" OK.")
-        toprint = data if is_a_list else data[0]
+
+        toprint = data if is_a_list else items[0]
         print(f"'{toprint}' is a valid input. Returning True.")
         return True
 
     def ingest(self, data: int | float | list[int | float]) -> None:
-        is_a_list = isinstance(data, list)
-        if not is_a_list:
-            data = [data]
-        for element in data:
+        items: list[int | float] = (
+            data if isinstance(data, list) else [data]
+        )
+        for element in items:
             if self.validate(element):
                 rank = len(self.storage)
-                temp = (rank, str(element))
+                temp: tuple[str, int] = (str(element), rank)
                 self.storage.append(temp)
-                print(f"ingested {temp[1]} with rank {temp[0]}")
+                self.ingested += 1
+                print(f"ingested {temp[0]} with rank {temp[1]}")
             else:
                 print(f"Invalid input data: {element}. Cannot ingest.")
 
@@ -76,29 +80,29 @@ class TextProcessor(DataProcessor):
     def validate(self, data: str | list[str]) -> bool:
         print(f"{self.name} trying to validate '{data}'...")
         is_a_list = isinstance(data, list)
-        if not is_a_list:
-            data = [data]
-        for element in data:
+        items: list[str] = data if isinstance(data, list) else [data]
+
+        for element in items:
             print(f"validating {element}...", end="")
             if not self.is_valid_datatype(type(element)):
                 print(" error!")
                 print(f"Invalid input data: {element}. Returning False")
                 return False
             print(" OK.")
-        toprint = data if is_a_list else data[0]
+
+        toprint = data if is_a_list else items[0]
         print(f"'{toprint}' is a valid input. Returning True.")
         return True
 
     def ingest(self, data: str | list[str]) -> None:
-        is_a_list = isinstance(data, list)
-        if not is_a_list:
-            data = [data]
-        for element in data:
+        items: list[str] = data if isinstance(data, list) else [data]
+        for element in items:
             if self.validate(element):
                 rank = len(self.storage)
-                temp = (rank, str(element))
+                temp: tuple[str, int] = (str(element), rank)
                 self.storage.append(temp)
-                print(f"ingested {temp[1]} with rank {temp[0]}")
+                self.ingested += 1
+                print(f"ingested {temp[0]} with rank {temp[1]}")
             else:
                 print(f"Invalid input data: {element}. Cannot ingest.")
 
@@ -111,29 +115,33 @@ class LogProcessor(DataProcessor):
     ) -> bool:
         print(f"{self.name} trying to validate '{data}'...")
         is_a_list = isinstance(data, list)
-        if not is_a_list:
-            data = [data]
-        for element in data:
+        items: list[dict[str, str]] = (
+            data if isinstance(data, list) else [data]
+        )
+
+        for element in items:
             print(f"validating {element}...", end="")
             if not self.is_log(element):
                 print(" error!")
                 print(f"Invalid input data: {element}. Returning False")
                 return False
             print(" OK.")
-        toprint = data if is_a_list else data[0]
+
+        toprint = data if is_a_list else items[0]
         print(f"'{toprint}' is a valid input. Returning True.")
         return True
 
     def ingest(self, data: dict[str, str] | list[dict[str, str]]) -> None:
-        is_a_list = isinstance(data, list)
-        if not is_a_list:
-            data = [data]
-        for element in data:
+        items: list[dict[str, str]] = (
+            data if isinstance(data, list) else [data]
+        )
+        for element in items:
             if self.validate(element):
                 rank = len(self.storage)
-                temp = (rank, str(element))
+                temp: tuple[str, int] = (str(element), rank)
                 self.storage.append(temp)
-                print(f"ingested {temp[1]} with rank {temp[0]}")
+                self.ingested += 1
+                print(f"ingested {temp[0]} with rank {temp[1]}")
             else:
                 print(f"Invalid input data: {element}. Cannot ingest.")
 
