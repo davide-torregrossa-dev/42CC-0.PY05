@@ -33,7 +33,8 @@ class DataProcessor(ABC):
 
     def show(self) -> bool:
         print(
-            f"{self.name}: total of {self.ingested} items processed, remaining {len(self.storage)} on processor"
+            f"{self.name}: total of {self.ingested} items processed, "
+            f"remaining {len(self.storage)} on processor"
         )
 
     def is_valid_datatype(self, datatype: tp.Any):
@@ -193,11 +194,13 @@ class DataStream:
                     item = processor.storage.pop()
                     collected_data.append(item)
                     print(
-                        f"Extracted {item[1]} with rank {item[0]} from {processor.name}"
+                        f"Extracted {item[1]} with rank "
+                        f"{item[0]} from {processor.name}"
                     )
                 except IndexError:
                     print(
-                        f"Error, {processor.name} tried to output from an empty storage."
+                        f"Error, {processor.name} tried "
+                        f"to output from an empty storage."
                     )
         plugin.process_output(collected_data)
 
@@ -219,7 +222,8 @@ class DataStream:
         print("\n===PROCESS STREAM RESUME=== ")
         if len(stream) > 0:
             print(
-                f"DataStream failed to find an appropriate processor for {stream}\n"
+                f"DataStream failed to find an appropriate "
+                f"processor for {stream}\n"
             )
         else:
             print("Everything went fine! Have a good day!\n")

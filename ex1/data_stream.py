@@ -33,7 +33,8 @@ class DataProcessor(ABC):
 
     def show(self) -> bool:
         print(
-            f"{self.name}: total of {self.ingested} items processed, remaining {len(self.storage)} on processor"
+            f"{self.name}: total of {self.ingested} items processed, "
+            f"remaining {len(self.storage)} on processor"
         )
 
     def is_valid_datatype(self, datatype: tp.Any):
@@ -175,7 +176,8 @@ class DataStream:
         print("\n===PROCESS STREAM RESUME=== ")
         if len(stream) > 0:
             print(
-                f"DataStream failed to find an appropriate processor for {stream}\n"
+                "DataStream failed to find an"
+                f" appropriate processor for {stream}\n"
             )
         else:
             print("Everything went fine! Have a good day!\n")
