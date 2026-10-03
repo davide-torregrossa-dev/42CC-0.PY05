@@ -53,10 +53,10 @@ class NumericProcessor(DataProcessor):
     name = "NumericProcessor"
     valid_datatypes = [int, float]
 
-    def validate(self, data: str | list[str]) -> bool:
+    def validate(self, data: int | float | list[int | float]) -> bool:
         print(f"{self.name} trying to validate '{data}'...")
         is_a_list = isinstance(data, list)
-        items: list[str] = data if isinstance(data, list) else [data]
+        items: list[int | float] = data if isinstance(data, list) else [data]
 
         for element in items:
             print(f"validating {element}...", end="")
@@ -89,18 +89,14 @@ class TextProcessor(DataProcessor):
     name = "TextProcessor"
     valid_datatypes = [str]
 
-    def validate(
-        self, data: dict[str, str] | list[dict[str, str]]
-    ) -> bool:
+    def validate(self, data: str | list[str]) -> bool:
         print(f"{self.name} trying to validate '{data}'...")
         is_a_list = isinstance(data, list)
-        items: list[dict[str, str]] = (
-            data if isinstance(data, list) else [data]
-        )
+        items: list[str] = data if isinstance(data, list) else [data]
 
         for element in items:
             print(f"validating {element}...", end="")
-            if not self.is_log(element):
+            if not self.is_valid_datatype(type(element)):
                 print(" error!")
                 print(f"Invalid input data: {element}. Returning False")
                 return False
@@ -131,16 +127,19 @@ class LogProcessor(DataProcessor):
     ) -> bool:
         print(f"{self.name} trying to validate '{data}'...")
         is_a_list = isinstance(data, list)
-        if not is_a_list:
-            data = [data]
-        for element in data:
+        items: list[dict[str, str]] = (
+            data if isinstance(data, list) else [data]
+        )
+
+        for element in items:
             print(f"validating {element}...", end="")
             if not self.is_log(element):
                 print(" error!")
                 print(f"Invalid input data: {element}. Returning False")
                 return False
             print(" OK.")
-        toprint = data if is_a_list else data[0]
+
+        toprint = data if is_a_list else items[0]
         print(f"'{toprint}' is a valid input. Returning True.")
         return True
 
@@ -196,10 +195,10 @@ class DataStream:
             for processor in self.processors:
                 try:
                     item = processor.storage.pop()
-                    collected_data.append(item)
+                    collected_data.append((item[1], item[0]))
                     print(
-                        f"Extracted {item[1]} with rank "
-                        f"{item[0]} from {processor.name}"
+                        f"Extracted {item[0]} with rank "
+                        f"{item[1]} from {processor.name}"
                     )
                 except IndexError:
                     print(
