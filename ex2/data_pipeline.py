@@ -56,7 +56,9 @@ class NumericProcessor(DataProcessor):
     def validate(self, data: int | float | list[int | float]) -> bool:
         print(f"{self.name} trying to validate '{data}'...")
         is_a_list = isinstance(data, list)
-        items: list[int | float] = data if isinstance(data, list) else [data]
+        items: list[int | float] = (
+            data if isinstance(data, list) else [data]
+        )
 
         for element in items:
             print(f"validating {element}...", end="")
@@ -276,9 +278,15 @@ if __name__ == "__main__":
         ]
     )
     datastream.print_processors_stats()
+    print()
     datastream.processors[0].output()
     datastream.processors[0].output()
     datastream.processors[0].output()
+    print()
+    datastream.processors[1].output()
+    datastream.processors[1].output()
+    print()
     datastream.processors[2].output()
     datastream.processors[2].output()
+    print()
     datastream.print_processors_stats()
