@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
     tproc = TextProcessor()
     print("Testing TextProcessor...")
-    tproc.ingest([42.3, 32])
+    tproc.ingest([42.3, 32])  # type: ignore[list-item]
     tproc.ingest("Ciaone")
     tproc.output()
     tproc.output()
@@ -178,9 +178,9 @@ if __name__ == "__main__":
         [
             {"nome": "Mario"},
             {"nome": "Luca"},
-            {"nome": 3},
+            {"nome": 3},  # type: ignore[dict-item]
         ]
     )
-    lproc.ingest("Ciaone")
+    lproc.ingest("Ciaone")  # type: ignore[arg-type]
     lproc.output()
     lproc.output()
